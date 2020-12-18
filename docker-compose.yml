@@ -1,0 +1,69 @@
+version: "3"
+
+services:
+  vote:
+    build: ./vote
+    command: python app.py
+    environment:
+      REDIS_HOST: redis_store
+      REDIS_PORT: 6379
+    volumes:
+      - ./vote:/app
+    ports:
+      - "5000:80"
+    networks:
+      - front-tier
+      - back-tier
+
+  result:
+    build: ./result
+    command: nodemon server.js
+    environment:
+      PGUSER: postgres
+      PGHOST: db
+      PGDATABASE: postgres
+      PGPASSWORD: postgres
+      PGPORT: 5432
+    volumes:
+      - ./result:/app
+    ports:
+      - "5001:80"
+      - "5858:5858"
+    networks:
+      - front-tier
+      - back-tier
+
+  worker:
+    build:
+      context: ./worker
+      dockerfile: Dockerfile
+    environment:
+      REDIS_HOST: "redis_store"
+      DB_HOST: "db"
+    networks:
+      - back-tier
+
+  redis_store:
+    image: redis:alpine
+    container_name: redis_store
+    ports: ["6379"]
+    networks:
+      - back-tier
+
+  db:
+    image: postgres:9.4
+    container_name: db
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgres"
+    volumes:
+      - "db-data:/var/lib/postgresql/data"
+    networks:
+      - back-tier
+
+volumes:
+  db-data:
+
+networks:
+  front-tier:
+  back-tier:
