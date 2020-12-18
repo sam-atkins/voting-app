@@ -9,8 +9,9 @@
   - [Local Development](#local-development)
     - [Prerequisites](#prerequisites)
     - [Create secret to pull image from Github](#create-secret-to-pull-image-from-github)
-    - [Compose](#compose)
+    - [Skaffold](#skaffold)
     - [K8s](#k8s)
+    - [Compose](#compose)
 
 ## Context
 
@@ -53,15 +54,18 @@ The source code for the components `result`, `vote` and `worker` are taken (with
       - name: dockerconfigjson-github-com
     ```
 
-### Compose
+### Skaffold
+
+To run Kubernetes locally using Skaffold:
 
 ```bash
-# from the project root run
-docker-compose up --build
+skaffold dev --port-forward
 ```
 
 - The vote app runs in [http://localhost:5000](http://localhost:5000)
 - The result app runs in [http://localhost:5001](http://localhost:5001)
+
+Local source code files are watched. In the case of `./result` and `./vote` local files are synced to pods instead of triggering an image build. If files are changed in  `./worker` an image re-build is triggered.
 
 ### K8s
 
@@ -88,3 +92,15 @@ kubectl delete -f k8s
 
 minikube stop
 ```
+
+### Compose
+
+Included for reference and because I was using this to help develop and debug various things as I was putting this project together.
+
+```bash
+# from the project root run
+docker-compose up --build
+```
+
+- The vote app runs in [http://localhost:5000](http://localhost:5000)
+- The result app runs in [http://localhost:5001](http://localhost:5001)

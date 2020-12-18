@@ -1,0 +1,38 @@
+apiVersion: skaffold/v2beta10
+kind: Config
+metadata:
+  name: voting-app
+build:
+  local:
+    push: false
+  artifacts:
+    - image: docker.pkg.github.com/sam-atkins/voting-app/worker
+      context: ./worker
+      docker:
+        dockerfile: Dockerfile
+    - image: docker.pkg.github.com/sam-atkins/voting-app/result
+      context: ./result
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        infer: ["**/*"]
+    - image: docker.pkg.github.com/sam-atkins/voting-app/vote
+      context: ./vote
+      docker:
+        dockerfile: Dockerfile
+      sync:
+        infer: ["**/*"]
+
+deploy:
+  kubectl:
+    manifests:
+      - k8s/postgres-cluster-ip-service.yaml
+      - k8s/postgres-deployment.yaml
+      - k8s/postgres-pvc.yaml
+      - k8s/redis-cluster-ip-service.yaml
+      - k8s/redis-deployment.yaml
+      - k8s/result-deployment.yaml
+      - k8s/result-service.yaml
+      - k8s/vote-deployment.yaml
+      - k8s/vote-service.yaml
+      - k8s/worker-deployment.yaml
