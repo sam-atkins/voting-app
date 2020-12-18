@@ -1,0 +1,37 @@
+# add PVC?
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-store-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      volumes:
+        - name: postgres-pvc-store
+          persistentVolumeClaim:
+            claimName: db-persistent-volume-claim
+      containers:
+      - name: postgres
+        image: postgres
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+          - mountPath: /var/lib/postgresql/data
+            name: postgres-pvc-store
+            subPath: postgres
